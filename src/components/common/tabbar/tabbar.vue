@@ -21,5 +21,7 @@ export default {
   right: 0;
   display: flex;
   height: 49px;
+  background:#fff;
+  z-index: 10;
 }
 </style>
