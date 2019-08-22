@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item">
-    <img :src="good.show.img" alt />
+    <img :src="good.show.img" @load="loadImg" @click="skip" />
     <div class="goods-info">
       <p>{{good.title}}</p>
       <span class="price">{{good.price}}</span>
@@ -20,6 +20,14 @@ export default {
     default() {
       return {}
     }
+  },
+  methods: {
+    loadImg() {
+      this.$bus.$emit('loadImg')
+    },
+    skip() {
+      this.$router.push('/detail' + this.good.iid)
+    }
   }
 }
 
@@ -28,7 +36,7 @@ export default {
 .goods-item {
   padding-bottom: 40px;
   position: relative;
-  width:48%;
+  width: 48%;
 }
 
 .goods-item img {

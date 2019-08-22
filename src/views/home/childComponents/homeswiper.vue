@@ -1,9 +1,9 @@
 <template>
   <div>
     <Swiper>
-      <SwiperItem v-for="(item,index) in banners" :key='index'>
+      <SwiperItem v-for="(item,index) in banners" :key="index">
         <a :href="item.link">
-          <img :src="item.image" alt />
+          <img :src="item.image" @load="monitor" />
         </a>
       </SwiperItem>
     </Swiper>
@@ -21,6 +21,15 @@ export default {
   },
   data() {
     return {
+      isLoad:false
+    }
+  },
+  methods: {
+    monitor() {
+      if (!this.isLoad) {
+        this.$emit('monitor')
+        this.isLoad = true
+      }
     }
   },
   components: {

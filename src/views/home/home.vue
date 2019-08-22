@@ -3,11 +3,18 @@
     <navbar class="title">
       <div slot="content" class="content">购物街</div>
     </navbar>
+    <tabcontrol
+      :titles="['流行','新款','精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      class="newTab"
+      v-show="show"
+    ></tabcontrol>
     <scroll class="wrap" ref="scroll" @getPosition="getY" @pullingUp="loadMore">
-      <Homeswiper :banners="banners"></Homeswiper>
+      <Homeswiper :banners="banners" @monitor="monitor"></Homeswiper>
       <recommend :recommends="recommends"></recommend>
       <feature></feature>
-      <tabcontrol :titles="['流行','新款','精选']" @tabClick="tabClick"></tabcontrol>
+      <tabcontrol :titles="['流行','新款','精选']" @tabClick="tabClick" ref="tabControl2"></tabcontrol>
       <goodlist :goods="goods[currentType].list"></goodlist>
     </scroll>
     <backtop @click.native="backto" v-show="isShow"></backtop>
@@ -38,7 +45,10 @@ export default {
         'sell': { page: 0, list: [] }
       },
       currentType: 'pop',
-      isShow: false
+      isShow: false,
+      tabOffsetTop: 0,
+      isFixed: false,
+      show: false
     }
   },
   created() {
@@ -50,7 +60,6 @@ export default {
   methods: {
     loadMore() {
       this.getGoods(this.currentType)
-      this.$refs.scroll.scroll.refresh()
     },
     tabClick(index) {
       switch (index) {
@@ -64,9 +73,12 @@ export default {
           this.currentType = 'sell'
           break
       }
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
     },
     getY(position) {
       this.isShow = -(position.y) > 1000 ? this.isShow = true : null
+      this.show = -(position.y) > this.tabOffsetTop
     },
     //
     backto() {
@@ -85,6 +97,18 @@ export default {
         this.goods[type].list.push(...res.data.list)
       })
       this.goods[type].page + 1
+    },
+    debounce(fn, delay) {
+      let timer = null
+      return function (...arg) {
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => {
+          fn.apply(this, arg)
+        }, delay)
+      }
+    },
+    monitor() {
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
     }
   },
   components: {
@@ -96,29 +120,47 @@ export default {
     goodlist,
     scroll,
     backtop
+  },
+  mounted() {
+    const exe = this.debounce(this.$refs.scroll.refresh, 20)
+    this.$bus.$on('loadImg', () => {
+      exe()
+    })
   }
 }
 
 </script>
 <style  scoped>
-.content {
+.title {
   text-align: center;
   background: var(--color-tint);
   color: #fff;
-  position: fixed;
+  /* position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10;
-}
-.title {
-  padding-bottom: 44px;
+  z-index: 10; */
 }
 .wrap {
+  overflow: hidden;
   position: absolute;
   top: 44px;
   bottom: 49px;
   left: 0;
   right: 0;
 }
+.newTab {
+  position: relative;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+/* .fixed {
+  position: fixed;
+  top: 44px;
+  right: 0;
+  left: 0;
+  bottom: 0;
+} */
 </style>

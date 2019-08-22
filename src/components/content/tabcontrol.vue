@@ -56,6 +56,6 @@ export default {
 }
 .tab {
   /* position: sticky; */
-  top: 44px;
+  /* top: 44px; */
 }
 </style>
